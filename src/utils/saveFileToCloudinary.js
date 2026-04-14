@@ -1,8 +1,5 @@
 import { v2 as cloudinary } from 'cloudinary';
-import dotenv from 'dotenv';
 import { Readable } from 'stream';
-
-dotenv.config();   // ← Додаємо це!
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -14,11 +11,17 @@ cloudinary.config({
 export const saveFileToCloudinary = (buffer) => {
   return new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
-      { folder: 'avatars' },
+      {
+        folder: 'avatars',
+        resource_type: 'image',
+        overwrite: true,
+        unique_filename: true,
+        use_filename: true,
+      },
       (error, result) => {
         if (error) return reject(error);
         resolve(result);
-      }
+      },
     );
     Readable.from(buffer).pipe(uploadStream);
   });

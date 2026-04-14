@@ -5,29 +5,22 @@ import { saveFileToCloudinary } from '../utils/saveFileToCloudinary.js';
 export const updateUserAvatar = async (req, res, next) => {
   try {
     if (!req.file) {
-      throw createHttpError(400, 'No file uploaded');
+      throw createHttpError(400, 'No file');
     }
 
-    // Завантажуємо на Cloudinary
     const result = await saveFileToCloudinary(req.file.buffer);
 
-    // Оновлюємо користувача
     const user = await User.findByIdAndUpdate(
       req.user._id,
       { avatar: result.secure_url },
-      { new: true }
+      { returnDocument: 'after' },
     );
 
     if (!user) {
       throw createHttpError(404, 'User not found');
     }
 
-    // Повертаємо URL
-    res.status(200).json({ 
-      message: "Avatar updated successfully",
-      url: user.avatar 
-    });
-
+    res.status(200).json({ url: result.secure_url });
   } catch (error) {
     next(error);
   }
