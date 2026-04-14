@@ -17,10 +17,24 @@ import { authenticate } from '../middleware/authenticate.js';
 
 const router = Router();
 
+const noteIdParamsSchema = Joi.object({ noteId: noteIdSchema });
+
 router.get('/notes', authenticate, celebrate({ [Segments.QUERY]: getAllNotesSchema }), getAllNotes);
-router.get('/notes/:noteId', authenticate, celebrate({ [Segments.PARAMS]: { noteId: noteIdSchema } }), getNoteById);
+
+router.get('/notes/:noteId', authenticate, celebrate({ [Segments.PARAMS]: noteIdParamsSchema }), getNoteById);
+
 router.post('/notes', authenticate, celebrate({ [Segments.BODY]: createNoteSchema }), createNote);
-router.delete('/notes/:noteId', authenticate, celebrate({ [Segments.PARAMS]: { noteId: noteIdSchema } }), deleteNote);
-router.patch('/notes/:noteId', authenticate, celebrate({ [Segments.PARAMS]: { noteId: noteIdSchema }, [Segments.BODY]: updateNoteSchema }), updateNote);
+
+router.delete('/notes/:noteId', authenticate, celebrate({ [Segments.PARAMS]: noteIdParamsSchema }), deleteNote);
+
+router.patch(
+  '/notes/:noteId',
+  authenticate,
+  celebrate({
+    [Segments.PARAMS]: noteIdParamsSchema,
+    [Segments.BODY]: updateNoteSchema,
+  }),
+  updateNote,
+);
 
 export default router;
